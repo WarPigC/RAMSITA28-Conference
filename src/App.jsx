@@ -15,60 +15,48 @@ import SponsorsTab from './components/tabs/SponsorsTab.jsx';
 import GalleryTab from './components/tabs/GalleryTab.jsx';
 import ContactUsTab from './components/tabs/ContactUsTab.jsx';
 
-// Default initial content fallback
-import initialData from '../data/content.json';
+// Supabase Client and data sync exclusively
+import { fetchConferenceContent, saveConferenceContent, isSupabaseConfigured } from './lib/supabaseClient.js';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [content, setContent] = useState(initialData);
+  const [content, setContent] = useState(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch updated content from Express API on mount
+  // Fetch content exclusively from Supabase on mount
   useEffect(() => {
     async function loadContent() {
+      setLoading(true);
+      setError(null);
       try {
-        const res = await fetch('/api/content');
-        if (res.ok) {
-          const data = await res.json();
-          setContent(data);
-        }
+        const data = await fetchConferenceContent();
+        setContent(data);
       } catch (err) {
-        console.warn('Backend API not reachable; running with local static content:', err);
+        console.error('Error loading conference content from Supabase:', err);
+        setError(err.message || 'Failed to connect to Supabase.');
+      } finally {
+        setLoading(false);
       }
     }
     loadContent();
   }, []);
 
-  // Save changes from Content Editor Modal
-  const handleSaveContent = async (updatedData, adminKey = '') => {
+  // Save changes from Content Editor Modal directly to Supabase
+  const handleSaveContent = async (updatedData) => {
     try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (adminKey) {
-        headers['x-admin-key'] = adminKey;
-      }
-      const res = await fetch('/api/content', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(updatedData),
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        setContent(result.data);
-        return result;
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Save failed on server');
-      }
-    } catch (err) {
-      console.warn('Saving to local React state only (backend server may be offline):', err);
+      const result = await saveConferenceContent(updatedData);
       setContent(updatedData);
+      return result;
+    } catch (err) {
+      console.error('Failed to save to Supabase:', err);
       throw err;
     }
   };
 
   const renderActiveTab = () => {
+    if (!content) return null;
     switch (activeTab) {
       case 'home':
         return <HomeTab content={content} setActiveTab={setActiveTab} />;
@@ -92,6 +80,42 @@ export default function App() {
         return <HomeTab content={content} setActiveTab={setActiveTab} />;
     }
   };
+
+  // Loading Screen
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A2540] flex flex-col items-center justify-center text-white space-y-4 font-sans">
+        <div className="w-12 h-12 border-4 border-emerald-400 border-t-transparent animate-spin"></div>
+        <div className="text-center space-y-1">
+          <h2 className="text-lg font-bold font-heading uppercase tracking-wider">RAMSITA 2028</h2>
+          <p className="text-xs text-slate-300">Loading conference data from Supabase...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error Screen
+  if (error || !content) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 text-slate-800 space-y-4 font-sans">
+        <div className="bg-white p-8 max-w-md w-full border border-slate-300 shadow-md space-y-4 text-center">
+          <div className="w-12 h-12 bg-red-100 text-red-600 mx-auto flex items-center justify-center font-bold text-xl">
+            !
+          </div>
+          <h2 className="text-lg font-bold text-brand-navy">Database Connection Error</h2>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            {error || 'Unable to retrieve conference data from Supabase. Please ensure your Supabase project is active and environment variables are properly set.'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 bg-[#0A2540] hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider cursor-pointer"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans selection:bg-brand-green selection:text-white">

@@ -1113,7 +1113,7 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
             <button
               onClick={handleDownloadJson}
               className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer"
-              title="Download content.json directly to disk"
+              title="Export conference backup directly as JSON"
             >
               Export JSON
             </button>
