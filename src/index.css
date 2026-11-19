@@ -10,8 +10,9 @@
   --color-brand-mint: #F0FDF4;
   --color-brand-surface: #F8FAFC;
   --color-brand-orange: #FF6600;
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Montserrat', 'Inter', system-ui, sans-serif;
+  --font-serif: 'Roboto Slab', Georgia, serif;
 }
 
 @keyframes marquee {
@@ -60,4 +61,77 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* ========================================================
+   DVD Screensaver Bouncing Glow Orbs (Billiard Corner Bouncing)
+   ======================================================== */
+:root {
+  --dvd-orb-size: 15rem;
+}
+@media (min-width: 640px) {
+  :root {
+    --dvd-orb-size: 18rem;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --dvd-orb-size: 20rem;
+  }
+}
+
+.dvd-orb {
+  width: var(--dvd-orb-size);
+  height: var(--dvd-orb-size);
+}
+
+/* Spot 1: Starts Top-Left, bounces Down-Right (Emerald Green) */
+@keyframes dvdX1 {
+  0% { left: 0px; }
+  100% { left: calc(100% - var(--dvd-orb-size)); }
+}
+@keyframes dvdY1 {
+  0% { top: 0px; }
+  100% { top: calc(100% - var(--dvd-orb-size)); }
+}
+
+.animate-dvd-1 {
+  animation: 
+    dvdX1 13.7s linear infinite alternate,
+    dvdY1 8.3s linear infinite alternate;
+  will-change: left, top;
+}
+
+/* Spot 2: Starts Top-Right, bounces Down-Left (Ocean Blue) */
+@keyframes dvdX2 {
+  0% { left: calc(100% - var(--dvd-orb-size)); }
+  100% { left: 0px; }
+}
+@keyframes dvdY2 {
+  0% { top: 0px; }
+  100% { top: calc(100% - var(--dvd-orb-size)); }
+}
+
+.animate-dvd-2 {
+  animation: 
+    dvdX2 16.9s linear infinite alternate,
+    dvdY2 10.7s linear infinite alternate;
+  will-change: left, top;
+}
+
+/* Spot 3: Starts Bottom-Left, bounces Up-Right (Teal/Turquoise) */
+@keyframes dvdX3 {
+  0% { left: 0px; }
+  100% { left: calc(100% - var(--dvd-orb-size)); }
+}
+@keyframes dvdY3 {
+  0% { top: calc(100% - var(--dvd-orb-size)); }
+  100% { top: 0px; }
+}
+
+.animate-dvd-3 {
+  animation: 
+    dvdX3 11.3s linear infinite alternate,
+    dvdY3 14.1s linear infinite alternate;
+  will-change: left, top;
 }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
-import MarqueeTicker from './components/MarqueeTicker.jsx';
 import Footer from './components/Footer.jsx';
 import ContentEditorModal from './components/ContentEditorModal.jsx';
 
@@ -138,10 +137,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans selection:bg-brand-green selection:text-white">
-      {/* 1. Breaking News Marquee */}
-      <MarqueeTicker items={content.marquee} />
-
-      {/* 2. Sticky Header Navbar with Logo and 9 Tabs */}
+      {/* 1. Sticky Header Navbar with Logo and 9 Tabs */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}

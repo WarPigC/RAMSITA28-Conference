@@ -28,106 +28,119 @@ export default function HomeTab({ content, setActiveTab }) {
   // Previous Events State
   const [selectedEventIdx, setSelectedEventIdx] = useState(0);
 
+  // Randomized Initial Starting Positions on every refresh (Negative animation delays)
+  const [dvdDelays] = useState(() => ({
+    spot1: `${-(Math.random() * 13.7).toFixed(2)}s, ${-(Math.random() * 8.3).toFixed(2)}s`,
+    spot2: `${-(Math.random() * 16.9).toFixed(2)}s, ${-(Math.random() * 10.7).toFixed(2)}s`,
+    spot3: `${-(Math.random() * 11.3).toFixed(2)}s, ${-(Math.random() * 14.1).toFixed(2)}s`,
+  }));
+
   const activeSpeaker = speakers[currentSpeakerIdx] || speakers[0];
   const activeEvent = previous_events[selectedEventIdx] || previous_events[0];
 
   return (
     <div className="space-y-16 pb-16 bg-white">
       
-      {/* 1. HERO SECTION (Redesigned per Image 1 feedback) */}
-      <section className="relative bg-[#0A2540] text-white pt-12 pb-16 border-b-4 border-brand-green overflow-hidden">
-        {/* Subtle geometric grid backdrop - clean & academic, NOT a generic circuit board */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-green/20 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-          
-          {/* Logo Emblem (Image 1 fix: high clarity logo) */}
-          <div className="inline-block p-1 bg-white border-2 border-white/80 shadow-lg">
+      {/* TOP VIEWPORT FOLD: Dynamic Auto-Scaling (Logo + Hero fits in viewport on desktop, scrolls on mobile) */}
+      <div className="flex flex-col md:min-h-[calc(100vh-6rem)]">
+        
+        {/* 1. LOGO SECTION (Scales dynamically with viewport) */}
+        <div className="bg-white flex items-center justify-center py-2 sm:py-3 lg:py-4 shrink-0">
+          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex items-center justify-center">
             <img 
               src="/logo.png" 
               alt="RAMSITA 2028 Official Logo" 
-              className="h-24 sm:h-28 w-auto object-contain"
+              className="h-[12vh] sm:h-[15vh] md:h-[17vh] lg:h-[19vh] max-h-[190px] min-h-[70px] w-auto max-w-[90vw] md:max-w-3xl lg:max-w-4xl object-contain mx-auto block transition-transform hover:scale-[1.01]"
               onError={(e) => { e.target.src = '/image.png'; }}
             />
           </div>
-
-          {/* Springer Nature AISR Badge */}
-          <div>
-            <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider bg-white/10 text-emerald-300 border border-emerald-400/40">
-              Proceedings to be published in Atlantis Press (Springer Nature) AISR Series
-            </span>
-          </div>
-
-          {/* Conference Title Hierarchy */}
-          <div className="space-y-2 max-w-4xl mx-auto">
-            <p className="text-sm sm:text-base font-bold tracking-widest text-slate-300 uppercase">
-              3rd International Conference on
-            </p>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black font-heading text-white tracking-tight leading-tight">
-              Recent Advancement and Modernization in Sustainable Intelligent Technologies & Applications
-            </h1>
-            <p className="text-lg sm:text-xl font-extrabold text-brand-green pt-1 tracking-wider">
-              (RAMSITA - 2028)
-            </p>
-          </div>
-
-          {/* Metadata: Mode, Organizer, Dates */}
-          <div className="max-w-2xl mx-auto text-slate-200 text-xs sm:text-sm font-medium space-y-1 pt-1">
-            <p className="font-semibold text-white">Organized in Hybrid Mode</p>
-            <p className="text-slate-300">by <span className="font-bold text-white">Acropolis Institute of Technology and Research</span>, Indore, MP, India</p>
-            <div className="flex items-center justify-center gap-2 pt-2 text-sm sm:text-base font-bold text-amber-300">
-              <Calendar className="w-4 h-4 text-amber-300" />
-              <span>February 11–12, 2028</span>
-            </div>
-          </div>
-
-          {/* Countdown Clock (Sharp, non-curved) */}
-          <div className="pt-2">
-            <CountdownTimer targetDate={hero?.countdownTarget || '2028-02-11T09:00:00'} />
-          </div>
-
-          {/* CTA Buttons (Sharp, non-curved boxes per user request) */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            {/* Orange Button like IJAITR */}
-            <button
-              onClick={() => {
-                setActiveTab('cfp');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white bg-[#FF6600] hover:bg-[#E65C00] transition-all shadow-md cursor-pointer border-0"
-            >
-              Call For Papers
-            </button>
-
-            {/* Microsoft CMT Submit */}
-            <a
-              href={hero?.cmtLink || 'https://cmt3.research.microsoft.com'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-brand-navy bg-white hover:bg-slate-100 transition-all shadow-md border-0"
-            >
-              <span>Submit via CMT</span>
-              <ExternalLink className="w-4 h-4 text-brand-navy" />
-            </a>
-
-            {/* Important Dates Quick Jump */}
-            <button
-              onClick={() => {
-                setActiveTab('dates');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 transition-all cursor-pointer"
-            >
-              Important Dates
-            </button>
-          </div>
-
         </div>
-      </section>
 
-      {/* 2. INTRO & SCOPE SECTION (IJAITR Format, fully modifiable) */}
+        {/* 2. HERO SECTION (Fills remainder of viewport on desktop, vertically centered, fits all buttons in view) */}
+        <section className="relative bg-[#0A2540] text-white flex-1 flex flex-col justify-center py-8 sm:py-10 lg:py-12 border-b-4 border-brand-green overflow-hidden !mt-0">
+          {/* Animated DVD Screensaver Bouncing Spots (Randomized starting positions on every page refresh) */}
+          <div 
+            style={{ animationDelay: dvdDelays.spot1 }}
+            className="absolute dvd-orb bg-brand-green/30 rounded-full blur-[65px] sm:blur-[80px] pointer-events-none animate-dvd-1 mix-blend-screen"
+          />
+          <div 
+            style={{ animationDelay: dvdDelays.spot2 }}
+            className="absolute dvd-orb bg-brand-blue/40 rounded-full blur-[70px] sm:blur-[85px] pointer-events-none animate-dvd-2 mix-blend-screen"
+          />
+          <div 
+            style={{ animationDelay: dvdDelays.spot3 }}
+            className="absolute dvd-orb bg-[#00D4B2]/25 rounded-full blur-[60px] sm:blur-[75px] pointer-events-none animate-dvd-3 mix-blend-screen"
+          />
+
+          {/* Subtle geometric grid backdrop positioned over the drifting glow */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0d_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0d_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4 sm:space-y-6">
+            
+            {/* Conference Title Hierarchy */}
+            <div className="space-y-1.5 sm:space-y-2 max-w-4xl mx-auto">
+              <p className="text-xs sm:text-sm font-bold tracking-widest text-slate-300 uppercase">
+                3rd International Conference on
+              </p>
+              <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-white tracking-normal leading-[1.25]">
+                Recent Advancement and Modernization in Sustainable Intelligent Technologies & Applications
+              </h1>
+              <p className="text-base sm:text-lg md:text-xl font-extrabold text-brand-green pt-0.5 tracking-wider">
+                (RAMSITA - 2028)
+              </p>
+            </div>
+
+            {/* Metadata: Mode, Organizer, Dates */}
+            <div className="max-w-2xl mx-auto text-slate-200 text-xs sm:text-sm font-medium space-y-1 pt-1">
+              <p className="font-semibold text-white">Organized in Hybrid Mode</p>
+              <p className="text-slate-300">by <span className="font-bold text-white">Acropolis Institute of Technology and Research</span>, Indore, MP, India</p>
+              <div className="flex items-center justify-center gap-2 pt-1.5 text-sm sm:text-base font-bold text-amber-300">
+                <Calendar className="w-4 h-4 text-amber-300" />
+                <span>February 11–12, 2028</span>
+              </div>
+            </div>
+
+            {/* CTA Buttons (Spaced comfortably from dates and title) */}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 lg:pt-8">
+              {/* Call For Papers Button */}
+              <button
+                onClick={() => {
+                  setActiveTab('cfp');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-6 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-white bg-[#FF6600] hover:bg-[#E65C00] transition-all shadow-md cursor-pointer border-0"
+              >
+                Call For Papers
+              </button>
+
+              {/* Microsoft CMT Submit */}
+              <a
+                href={hero?.cmtLink || 'https://cmt3.research.microsoft.com'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-brand-navy bg-white hover:bg-slate-100 transition-all shadow-md border-0"
+              >
+                <span>Submit via CMT</span>
+                <ExternalLink className="w-4 h-4 text-brand-navy" />
+              </a>
+
+              {/* Important Dates Button */}
+              <button
+                onClick={() => {
+                  setActiveTab('dates');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 transition-all cursor-pointer"
+              >
+                Important Dates
+              </button>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      {/* 3. INTRO & SCOPE SECTION (IJAITR Format, fully modifiable) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           
