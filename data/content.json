@@ -1,0 +1,397 @@
+{
+  "meta": {
+    "conferenceTitle": "3rd International Conference on Recent Advancement and Modernization in Sustainable Intelligent Technologies & Applications",
+    "shortName": "RAMSITA 2028",
+    "proceedingsTitle": "Advanced Innovation in Technology and Research (AITR-2028)",
+    "publisher": "Springer Nature (Atlantis Press AISR & BJIT Journal)",
+    "dates": "February 11–12, 2028",
+    "venue": "Acropolis Institute of Technology and Research (AITR)",
+    "location": "Bypass Road, Manglia Square, Indore, Madhya Pradesh - 453771, India",
+    "mode": "Hybrid Mode (In-Person & Virtual Presentation)",
+    "email": "ramsita@acropolis.in",
+    "phone": "0731-4730111, +91-9425720000"
+  },
+  "marquee": [
+    "🔥 RAMSITA 2028 Call for Papers is officially OPEN — Submit via Microsoft CMT",
+    "📚 Accepted & presented papers will be submitted to Atlantis Press (part of Springer Nature Group) AISR Series",
+    "✨ Special Fast-Track consideration for Scopus-Indexed BJIT - International Journal of Information Technology (Springer Nature)",
+    "🏆 Best PhD Thesis Award Nominations are now OPEN",
+    "🗓️ Conference Dates: February 11-12, 2028 | Hybrid Mode: Indore, India & Virtual"
+  ],
+  "hero": {
+    "badge": "Springer Nature Proceedings • Hybrid Conference",
+    "heading": "Innovating the Future Through Intelligent and Sustainable Technologies",
+    "subheading": "Uniting dynamic researchers, esteemed academicians, and global industry leaders to explore responsible AI, quantum computing, cybersecurity, and green tech.",
+    "countdownTarget": "2028-02-11T09:00:00",
+    "cmtLink": "https://cmt3.research.microsoft.com",
+    "registrationLink": "https://forms.gle/ramsita2028"
+  },
+  "usps": [
+    {
+      "id": "1",
+      "title": "Convergence of Future Technologies",
+      "description": "Brings Generative AI, Quantum Computing, Cybersecurity, and Sustainable Computing together under one premier research umbrella.",
+      "icon": "Cpu"
+    },
+    {
+      "id": "2",
+      "title": "AI & Quantum Integration",
+      "description": "Encourages groundbreaking research at the vital intersection of quantum algorithms, machine learning, and high-performance computing.",
+      "icon": "Atom"
+    },
+    {
+      "id": "3",
+      "title": "Security by Design",
+      "description": "Emphasizes trustworthy AI, privacy-preserving architectures, zero-trust paradigms, and post-quantum cryptographic resilience.",
+      "icon": "ShieldCheck"
+    },
+    {
+      "id": "4",
+      "title": "Green & Responsible AI",
+      "description": "Spotlights energy-efficient models, low-carbon computational infrastructure, and environmentally sustainable technology lifecycles.",
+      "icon": "Leaf"
+    },
+    {
+      "id": "5",
+      "title": "Research with Real-World Impact",
+      "description": "Fosters experimental validation, open datasets, production deployments, and tangible solutions for agriculture, healthcare, and smart cities.",
+      "icon": "Sparkles"
+    },
+    {
+      "id": "6",
+      "title": "Global Academic Networking",
+      "description": "Connects Indian researchers with eminent professors and research labs across USA, UK, Taiwan, Australia, Vietnam, and Singapore.",
+      "icon": "Globe"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "track-1",
+      "number": "01",
+      "name": "Generative AI and Intelligent Systems",
+      "scope": "Generative AI, Large Language Models (LLMs), Agentic AI, Multimodal Intelligence, Explainable AI (XAI), Deep Learning, Reinforcement Learning, Intelligent Automation, and Responsible AI.",
+      "color": "from-blue-600 to-indigo-600"
+    },
+    {
+      "id": "track-2",
+      "number": "02",
+      "name": "Quantum Computing & Emerging Paradigms",
+      "scope": "Quantum algorithms, Quantum Machine Learning (QML), Quantum communication, Quantum cryptography, Quantum simulation, Hybrid quantum-classical computing, and Post-quantum technologies.",
+      "color": "from-purple-600 to-indigo-700"
+    },
+    {
+      "id": "track-3",
+      "number": "03",
+      "name": "Cybersecurity, Privacy & Trustworthy Computing",
+      "scope": "AI-driven cyber threat detection, Network security, Blockchain, Digital forensics, Privacy-preserving technologies, Secure communication, Post-quantum cryptography, and Zero-trust architectures.",
+      "color": "from-cyan-600 to-blue-700"
+    },
+    {
+      "id": "track-4",
+      "number": "04",
+      "name": "Green Computing & Energy-Efficient Technologies",
+      "scope": "Green AI, Low-power computing, Energy-efficient algorithms, Sustainable data centres, Cloud energy optimisation, Edge computing, Carbon-aware computing, and Renewable energy integration.",
+      "color": "from-emerald-600 to-teal-700"
+    },
+    {
+      "id": "track-5",
+      "number": "05",
+      "name": "IoT, Cyber-Physical Systems & Smart Tech",
+      "scope": "IoT, Industrial IoT (IIoT), Smart agriculture, Smart cities, Intelligent sensing, Embedded systems, Digital twins, Edge intelligence, and AI-enabled cyber-physical infrastructure.",
+      "color": "from-teal-600 to-emerald-700"
+    },
+    {
+      "id": "track-6",
+      "number": "06",
+      "name": "Advanced Computing & Distributed Intelligence",
+      "scope": "Big data analytics, Cloud and fog computing, Distributed systems, High-performance computing (HPC), Advanced algorithms, Data engineering, Knowledge discovery, and Intelligent information systems.",
+      "color": "from-sky-600 to-blue-800"
+    },
+    {
+      "id": "track-7",
+      "number": "07",
+      "name": "AI Applications & Interdisciplinary Innovations",
+      "scope": "AI applications in healthcare, education, agriculture, finance, engineering, and industrial automation, including multimodal learning and domain-specific intelligent solutions.",
+      "color": "from-emerald-500 to-cyan-700"
+    },
+    {
+      "id": "track-8",
+      "number": "SP",
+      "name": "Special Track: Best PhD Thesis Award",
+      "scope": "Dedicated presentation track and cash awards for completed or near-completion doctoral dissertations in computer science, intelligent systems, and engineering.",
+      "color": "from-amber-500 to-orange-600"
+    }
+  ],
+  "important_dates": [
+    {
+      "id": "d1",
+      "event": "Call for Papers Submission Opens",
+      "date": "August 15, 2027",
+      "status": "Upcoming",
+      "highlight": false
+    },
+    {
+      "id": "d2",
+      "event": "Special Track & PhD Thesis Nomination Deadline",
+      "date": "November 15, 2027",
+      "status": "Upcoming",
+      "highlight": false
+    },
+    {
+      "id": "d3",
+      "event": "Full Paper Submission Closes",
+      "date": "December 15, 2027",
+      "status": "Upcoming",
+      "highlight": true
+    },
+    {
+      "id": "d4",
+      "event": "Notification of Acceptance",
+      "date": "January 10, 2028",
+      "status": "Upcoming",
+      "highlight": false
+    },
+    {
+      "id": "d5",
+      "event": "Early Bird Registration Closes",
+      "date": "January 20, 2028",
+      "status": "Upcoming",
+      "highlight": false
+    },
+    {
+      "id": "d6",
+      "event": "Camera-Ready Manuscript Due",
+      "date": "January 28, 2028",
+      "status": "Upcoming",
+      "highlight": false
+    },
+    {
+      "id": "d7",
+      "event": "Conference Dates (Hybrid)",
+      "date": "February 11–12, 2028",
+      "status": "Upcoming",
+      "highlight": true
+    }
+  ],
+  "speakers": [
+    {
+      "id": "sp1",
+      "name": "Dr. Sudarshan Iyengar",
+      "title": "Director",
+      "institution": "Annam.ai & IIT Ropar, India",
+      "topic": "Next-Generation Machine Learning & Digital Knowledge Graphs",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "sp2",
+      "name": "Dr. M. N. Hoda",
+      "title": "Director",
+      "institution": "BVICAM, New Delhi, India",
+      "topic": "Sustainable Software Architectures & Intelligent Systems",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "sp3",
+      "name": "Prof. (Dr.) Duc-Tan Tran",
+      "title": "Dean, Faculty of Electrical & Electronic Eng.",
+      "institution": "Phenikaa School of Engineering, Vietnam",
+      "topic": "IoT Sensing & Embedded Intelligent Infrastructure",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "sp4",
+      "name": "Dr. Sandeep Shukla",
+      "title": "Director & Professor",
+      "institution": "IIIT Hyderabad, India",
+      "topic": "Cybersecurity of Critical Infrastructure & Blockchain Governance",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "sp5",
+      "name": "Dr. Brij B. Gupta",
+      "title": "Distinguished Professor & Director CCRI",
+      "institution": "Asia University, Taiwan",
+      "topic": "Post-Quantum Cryptography & AI Security Protocols",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "sp6",
+      "name": "Prof. (Dr.) Jemal Abawajy",
+      "title": "Professor, Faculty of Science & Engineering",
+      "institution": "Deakin University, Australia",
+      "topic": "Distributed Cloud Systems & Edge Computing Resiliency",
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop&q=80"
+    }
+  ],
+  "registration": {
+    "guidelines": "At least one author must register with Full Registration fee to include the accepted paper in the conference proceedings. Co-authors and attendees may register under the Attendee category. Normal paper length is up to 12 pages in Springer Nature format. Each extra page is charged at ₹500 (INR) or $10 (USD).",
+    "fees": [
+      {
+        "category": "Academic / Research Institute Author",
+        "inr": 9000,
+        "usd": 180,
+        "perks": ["Full Paper Publication in Proceedings", "Presentation Certificate", "Conference Kit & Materials", "Access to All Sessions & Keynotes"]
+      },
+      {
+        "category": "Industry Participant / Author",
+        "inr": 12000,
+        "usd": 220,
+        "perks": ["Full Paper Publication in Proceedings", "Presentation Certificate", "Industry Networking Access", "Conference Kit & Banquet"]
+      },
+      {
+        "category": "Conference Attendee / Co-Author / PhD Award",
+        "inr": 2000,
+        "usd": 50,
+        "perks": ["Attendance Certificate", "Access to All Hybrid Sessions", "Delegate Pass & Materials"]
+      },
+      {
+        "category": "Poster Presentation Track",
+        "inr": 1500,
+        "usd": 50,
+        "perks": ["Poster Space & Digital Display", "Presentation Certificate", "Session Access"]
+      }
+    ],
+    "bank": {
+      "accountName": "Acropolis Institute of Technology & Research",
+      "accountNumber": "50200052357130",
+      "bankName": "HDFC Bank",
+      "branch": "Trade House, Indore",
+      "ifsc": "HDFC0000036",
+      "upiId": "acropolis@hdfcbank"
+    }
+  },
+  "committees": {
+    "chiefPatron": [
+      { "name": "Er. Ashok Sojatia", "role": "Chief Patron", "affiliation": "Chairman BOG, Acropolis Group of Institutions" }
+    ],
+    "patrons": [
+      { "name": "Er. Ashish Sojatia", "role": "Patron", "affiliation": "Group Chairman, Acropolis Group of Institutions" },
+      { "name": "Shri Anand Sojatia", "role": "Patron", "affiliation": "Secretary, Acropolis Group of Institutions, Indore" },
+      { "name": "Er. Gaurav Sojatia", "role": "Patron", "affiliation": "Chairman, Acropolis Group of Institutions, Indore" }
+    ],
+    "chairs": [
+      { "name": "Dr. Shilpa Bhalerao", "role": "General Conference Chair & Lead Editor", "affiliation": "Professor & Head, Department of CSIT, AITR Indore" },
+      { "name": "Dr. Brij Bhushan Gupta", "role": "Conference Co-Chair", "affiliation": "Distinguished Professor & Director CCRI, Asia University, Taiwan" },
+      { "name": "Dr. Praveen Gupta", "role": "Conference Co-Chair", "affiliation": "Professor, AITR Indore" },
+      { "name": "Dr. Vandana Kate", "role": "Conference Co-Chair", "affiliation": "Professor, AITR Indore" }
+    ],
+    "steering": [
+      { "name": "Dr. S. C. Sharma", "role": "Director, AITR Indore" },
+      { "name": "Dr. Kamal Sethi", "role": "Professor, AITR Indore" },
+      { "name": "Dr. U. B. S. Chandrawat", "role": "Professor & Head EC, AITR" },
+      { "name": "Dr. Prashant Lakkadwala", "role": "Professor & Head, AITR" },
+      { "name": "Dr. Namrata Tapaswi", "role": "Professor & Head CSE (AI&ML)" },
+      { "name": "Dr. Jayant Awasthi", "role": "Professor, AITR" },
+      { "name": "Prof. Geeta Santhosh", "role": "Professor, AITR" },
+      { "name": "Dr. Amit Kumar Marwah", "role": "Professor, AITR" }
+    ],
+    "advisoryInternational": [
+      { "name": "Dr. Duc-Tan Tran", "affiliation": "Phenikaa School of Engineering, Vietnam" },
+      { "name": "Dr. Jemal Abawajy", "affiliation": "Deakin University, Australia" },
+      { "name": "Dr. C. Jayakumari", "affiliation": "Muscat, Oman" },
+      { "name": "Mr. Sidhanta De", "affiliation": "Singapore" },
+      { "name": "Mr. Manish Gehlot", "affiliation": "Infosys Consulting, USA" },
+      { "name": "Ms. Archana Gehlot", "affiliation": "Founder, Asmakam Life University, USA" }
+    ],
+    "advisoryNational": [
+      { "name": "Dr. Sudarshan Iyengar", "affiliation": "IIT Ropar" },
+      { "name": "Dr. P. C. Deshmukh", "affiliation": "IIT Tirupati & RV University" },
+      { "name": "Dr. Jimson Mathew", "affiliation": "IIT Patna" },
+      { "name": "Dr. Aruna Tiwari", "affiliation": "IIT Indore" },
+      { "name": "Dr. Santosh Vishwakarma", "affiliation": "IIT Indore" },
+      { "name": "Dr. Abhay Kumar", "affiliation": "Director, IIIT Agartala" },
+      { "name": "Dr. Ram Bilas Pachori", "affiliation": "Director, IIIT Kottayam" },
+      { "name": "Dr. Maya Ingle", "affiliation": "Ex-Director DDUK, Indore" }
+    ]
+  },
+  "about": {
+    "overview": "Acropolis Institute of Technology and Research (AITR), situated in Indore, Madhya Pradesh, commenced its journey of excellence in 2005. Spread across 5 Lakh square feet of lush green eco-friendly campus with globally acknowledged modern infrastructure, the institute is dedicated to high-standard education and interdisciplinary scientific research.",
+    "rankings": [
+      { "title": "Top 50 in India (ARIIA)", "desc": "Ranked in top 50 private institutions by Govt. of India for Innovation Achievements." },
+      { "title": "20+ Years Excellence", "desc": "Pioneering technical and managerial education in Central India since 2005." },
+      { "title": "NAAC & NBA Accredited", "desc": "Recognized for uncompromising quality standards and outcome-based engineering education." },
+      { "title": "Host Departments", "desc": "Department of CSIT and Department of CSE (Cyber Security)." }
+    ],
+    "city": {
+      "title": "Welcome to Indore — India's Cleanest City",
+      "desc": "Awarded India's cleanest city for 7 consecutive years under Swachh Survekshan, Indore is the cultural and commercial capital of Central India. Famous for its culinary hubs like Sarafa Bazaar and Chappan Dukan, as well as historic Rajwada Palace and Devi Ahilyabai Holkar Airport, Indore warmly welcomes international scholars."
+    }
+  },
+  "sponsors": {
+    "title": "Partner with RAMSITA 2028",
+    "pitch": "Showcase your organization's leadership in sustainability, intelligent technologies, and engineering innovation to an audience of 1,500+ researchers, academic heads, and industry innovators.",
+    "stats": [
+      { "label": "Expected Delegates", "value": "1500–2000" },
+      { "label": "Research Papers Presented", "value": "250+" },
+      { "label": "Participating Countries", "value": "15+" },
+      { "label": "Academic & R&D Partners", "value": "50+" }
+    ],
+    "packages": [
+      {
+        "name": "Platinum Sponsor",
+        "amount": "₹ 1,00,000",
+        "perks": ["Prominent logo on main conference stage backdrop", "Full page color advertisement in Springer Book of Abstracts", "5 Complimentary full delegate passes", "Dedicated promotional booth at venue", "VIP pass to international networking dinner"]
+      },
+      {
+        "name": "Gold Sponsor",
+        "amount": "₹ 50,000",
+        "perks": ["Logo on conference banners and digital brochure", "Half page advertisement in Book of Abstracts", "3 Complimentary delegate passes", "Display stall in exhibition corridor"]
+      },
+      {
+        "name": "Silver Sponsor",
+        "amount": "₹ 25,000",
+        "perks": ["Logo on official conference website and posters", "Quarter page acknowledgment in Book of Abstracts", "2 Complimentary delegate passes"]
+      }
+    ]
+  },
+  "gallery": [
+    {
+      "id": "g1",
+      "title": "Inaugural Ceremony RAMSITA",
+      "category": "Inauguration",
+      "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop&q=80",
+      "caption": "Dignitaries lighting the ceremonial lamp during the opening ceremony."
+    },
+    {
+      "id": "g2",
+      "title": "Keynote Address on Intelligent Systems",
+      "category": "Keynotes",
+      "image": "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80",
+      "caption": "International keynote speaker addressing academic delegates."
+    },
+    {
+      "id": "g3",
+      "title": "Technical Session & Paper Presentation",
+      "category": "Sessions",
+      "image": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80",
+      "caption": "Researchers presenting peer-reviewed papers during the technical track."
+    },
+    {
+      "id": "g4",
+      "title": "Best PhD Thesis Award Presentation",
+      "category": "Awards",
+      "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=80",
+      "caption": "Conferring the Best Doctoral Dissertation Award to scholar."
+    },
+    {
+      "id": "g5",
+      "title": "International Advisory Panel Discussion",
+      "category": "Sessions",
+      "image": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80",
+      "caption": "Global panel discussing sustainable computing and ethical AI paradigms."
+    },
+    {
+      "id": "g6",
+      "title": "Campus Greenery & Architecture",
+      "category": "Campus",
+      "image": "https://images.unsplash.com/photo-1562774053-701939374585?w=800&auto=format&fit=crop&q=80",
+      "caption": "State-of-the-art academic blocks at Acropolis Institute Indore."
+    }
+  ],
+  "contact": {
+    "email": "ramsita@acropolis.in",
+    "phone": "0731-4730111, +91-9425720000",
+    "address": "Acropolis Institute of Technology and Research, Bypass Road, Manglia Square, Manglia, Indore, Madhya Pradesh-453771, India",
+    "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.016335198424!2d75.9405672753282!3d22.79975767933166!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39631d37446540b9%3A0xc391122a8432b4b4!2sAcropolis%20Institute%20of%20Technology%20and%20Research!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+  }
+}

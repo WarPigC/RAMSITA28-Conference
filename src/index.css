@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #0A2540;
+  --color-brand-dark: #0E2B5C;
+  --color-brand-blue: #0D6BA1;
+  --color-brand-cyan: #1B88CA;
+  --color-brand-green: #48A23F;
+  --color-brand-emerald: #5CB85C;
+  --color-brand-mint: #F0FDF4;
+  --color-brand-surface: #F8FAFC;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Montserrat', 'Inter', sans-serif;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
