@@ -19,6 +19,13 @@ export const initialContent = {
     "🗓️ Conference Dates: February 11-12, 2028 | Hybrid Mode: Indore, India & Virtual"
   ],
   "hero": {
+    "edition_label": "3rd International Conference on",
+    "title": "Recent Advancement and Modernization in Sustainable Intelligent Technologies & Applications",
+    "short_name": "(RAMSITA - 2028)",
+    "mode": "Organized in Hybrid Mode",
+    "organizer_name": "Acropolis Institute of Technology and Research",
+    "organizer_location": ", Indore, MP, India",
+    "dates": "February 11–12, 2028",
     "badge": "Springer Nature Proceedings • Hybrid Conference",
     "cmtLink": "https://cmt3.research.microsoft.com",
     "heading": "Innovating the Future Through Intelligent and Sustainable Technologies",
@@ -67,7 +74,7 @@ export const initialContent = {
   "intro_scope": {
     "intro_text": "The 3rd International Conference on Recent Advancement and Modernization in Sustainable Intelligent Technologies & Applications (RAMSITA - 2028) is being organized in Hybrid Mode by Acropolis Institute of Technology and Research, Indore, MP, India on February 11-12, 2028. RAMSITA 2028 provides a premier international forum for researchers, developers, practitioners, and educators from around the globe to discuss recent innovations, trends, and concerns, as well as practical challenges encountered and solutions adopted in the fields of sustainable intelligent technologies and applications.",
     "scope_text": "The primary objective of RAMSITA 2028 is to bring together dynamic researchers, academicians, and industry specialists to explore innovative solutions in cutting-edge intelligent algorithms, green computing, cyber-physical systems, and next-generation networks. All accepted and presented papers fulfilling Springer Nature standards will be submitted for publication in Atlantis Press (part of Springer Nature Group) AISR Series.",
-    "intro_heading": "TESTING TESTING",
+    "intro_heading": "Welcome to RAMSITA 2028",
     "scope_heading": "Scope & Core Objectives"
   },
   "call_for_papers": {

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { initialContent } from '../data/initialContent.js';
 
 const rawUrl = import.meta.env.VITE_SUPABASE_URL || '';
 // Automatically strip trailing slashes or /rest/v1 if present
@@ -110,29 +111,31 @@ export async function fetchConferenceContent() {
   });
 
   const contentResult = {
-    meta: settings.meta || {},
-    marquee: settings.marquee || [],
-    hero: settings.hero || {},
-    usps: settings.usps || [],
-    intro_scope: settings.intro_scope || {},
-    call_for_papers: settings.call_for_papers || {},
-    tracks: tracksRes.data || [],
-    important_dates: (datesRes.data || []).map(d => ({ ...d, highlight: Boolean(d.highlight) })),
-    speakers: speakersRes.data || [],
-    latest_news: newsRes.data || [],
-    previous_events: eventsRes.data || [],
-    sponsor_logos: sponsorsRes.data || [],
+    meta: { ...initialContent.meta, ...(settings.meta || {}) },
+    marquee: settings.marquee || initialContent.marquee || [],
+    hero: { ...initialContent.hero, ...(settings.hero || {}) },
+    usps: settings.usps || initialContent.usps || [],
+    intro_scope: { ...initialContent.intro_scope, ...(settings.intro_scope || {}) },
+    call_for_papers: { ...initialContent.call_for_papers, ...(settings.call_for_papers || {}) },
+    tracks: tracksRes.data && tracksRes.data.length > 0 ? tracksRes.data : initialContent.tracks,
+    important_dates: datesRes.data && datesRes.data.length > 0
+      ? datesRes.data.map(d => ({ ...d, highlight: Boolean(d.highlight) }))
+      : initialContent.important_dates,
+    speakers: speakersRes.data && speakersRes.data.length > 0 ? speakersRes.data : initialContent.speakers,
+    latest_news: newsRes.data && newsRes.data.length > 0 ? newsRes.data : initialContent.latest_news,
+    previous_events: eventsRes.data && eventsRes.data.length > 0 ? eventsRes.data : initialContent.previous_events,
+    sponsor_logos: sponsorsRes.data && sponsorsRes.data.length > 0 ? sponsorsRes.data : initialContent.sponsor_logos,
     registration: {
-      guidelines: settings.registration_guidelines || '',
-      notes: settings.registration_notes || [],
-      fees: fees || [],
-      bank: settings.registration_bank || {}
+      guidelines: settings.registration_guidelines || initialContent.registration?.guidelines || '',
+      notes: settings.registration_notes || initialContent.registration?.notes || [],
+      fees: (fees && fees.length > 0) ? fees : (initialContent.registration?.fees || []),
+      bank: settings.registration_bank || initialContent.registration?.bank || {}
     },
-    committees,
-    about: settings.about || {},
-    sponsors: settings.sponsors || {},
-    gallery: galleryRes.data || [],
-    contact: settings.contact || {}
+    committees: (membersRes.data && membersRes.data.length > 0) ? committees : initialContent.committees,
+    about: { ...initialContent.about, ...(settings.about || {}) },
+    sponsors: { ...initialContent.sponsors, ...(settings.sponsors || {}) },
+    gallery: galleryRes.data && galleryRes.data.length > 0 ? galleryRes.data : initialContent.gallery,
+    contact: { ...initialContent.contact, ...(settings.contact || {}) }
   };
 
   // Cache latest data in localStorage for 0ms loads on subsequent visits
@@ -322,13 +325,25 @@ export async function uploadImageToSupabase(file, bucketName = 'conference-asset
     throw new Error('Supabase client is not configured.');
   }
 
-  const fileExt = file.name.split('.').pop();
+  const fileExt = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const mimeMap = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    webp: 'image/webp',
+    svg: 'image/svg+xml',
+    gif: 'image/gif'
+  };
+  const contentType = file.type || mimeMap[fileExt] || 'image/jpeg';
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
   const filePath = `uploads/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from(bucketName)
-    .upload(filePath, file);
+    .upload(filePath, file, {
+      contentType,
+      upsert: true
+    });
 
   if (uploadError) throw uploadError;
 

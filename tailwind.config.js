@@ -10,11 +10,11 @@ export default {
         brand: {
           navy: '#0A2540',
           dark: '#0E2B5C',
-          blue: '#0D6BA1',
-          cyan: '#1B88CA',
-          green: '#48A23F',
-          emerald: '#5CB85C',
-          mint: '#F0FDF4',
+          blue: '#0C5B94',
+          cyan: '#1472B8',
+          green: '#77B232',
+          emerald: '#6BA02D',
+          mint: '#F4F9EC',
           surface: '#F8FAFC'
         }
       },

@@ -1,31 +1,144 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  X, ShieldCheck, ShieldAlert, Save, RefreshCw, Eye, Code, FileText, 
-  CheckCircle2, Plus, Trash2, Image as ImageIcon, Users, Calendar, 
-  Sparkles, Layers, DollarSign 
+  X, Save, FileText, CheckCircle2, Plus, Trash2, 
+  Image as ImageIcon, Users, Calendar, Sparkles, 
+  Layers, DollarSign, Upload, Loader2 
 } from 'lucide-react';
+import { uploadImageToSupabase } from '../lib/supabaseClient.js';
+
+function ImageUploadInput({ label, value, onChange, placeholder = "https://..." }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File must be smaller than 10MB');
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+    try {
+      const publicUrl = await uploadImageToSupabase(file);
+      onChange(publicUrl);
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      setError('Upload failed. Please ensure file is valid.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-1">
+      {label && (
+        <label className="block text-[10px] font-bold uppercase text-slate-500">
+          {label}
+        </label>
+      )}
+      <div className="flex items-center gap-2">
+        {/* Thumbnail Preview */}
+        {value ? (
+          <div className="w-8 h-8 bg-slate-100 border border-slate-300 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+            <img 
+              src={value} 
+              alt="Preview" 
+              className="w-full h-full object-cover"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </div>
+        ) : (
+          <div className="w-8 h-8 bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center text-slate-400">
+            <ImageIcon className="w-4 h-4" />
+          </div>
+        )}
+
+        {/* Text URL Input */}
+        <input
+          type="text"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="flex-1 min-w-0 px-2.5 py-1.5 border border-slate-300 font-mono text-[11px] focus:outline-none focus:border-brand-navy"
+        />
+
+        {/* Upload Button */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider bg-[#0C5B94] hover:bg-[#094775] text-white transition-colors shrink-0 disabled:opacity-50 cursor-pointer shadow-xs"
+          title="Upload image from computer to Supabase"
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-300" />
+              <span>Uploading...</span>
+            </>
+          ) : (
+            <>
+              <Upload className="w-3.5 h-3.5 text-emerald-300" />
+              <span>Upload</span>
+            </>
+          )}
+        </button>
+      </div>
+      {error && <p className="text-[10px] text-red-500 font-semibold">{error}</p>}
+    </div>
+  );
+}
 
 export default function ContentEditorModal({ isOpen, onClose, content, onSave }) {
   if (!isOpen) return null;
 
   const [activeTab, setActiveTab] = useState('hero_intro');
   const [formData, setFormData] = useState(JSON.parse(JSON.stringify(content)));
-  const [rawHtmlSnippet, setRawHtmlSnippet] = useState(
-    '<p class="text-brand-blue font-bold">RAMSITA 2028: Empowering sustainable global research.</p>'
-  );
-  const [adminPasskey, setAdminPasskey] = useState('');
   const [saveStatus, setSaveStatus] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const tabsContainerRef = useRef(null);
 
-  // Security validator check
-  const maliciousPattern = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|javascript:|onerror=|onload=|onclick=|eval\(|<iframe/gi;
-  const isMalicious = maliciousPattern.test(rawHtmlSnippet);
+  // Synchronize local form data whenever modal opens or content updates
+  useEffect(() => {
+    if (isOpen && content) {
+      setFormData(JSON.parse(JSON.stringify(content)));
+    }
+  }, [isOpen, content]);
+
+  // Enable horizontal mouse-wheel scrolling across the tabs bar without showing a scrollbar
+  useEffect(() => {
+    const el = tabsContainerRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [isOpen]);
 
   const handleSave = async () => {
     setIsSaving(true);
     setSaveStatus(null);
     try {
-      await onSave(formData, adminPasskey);
+      await onSave(formData);
       setSaveStatus('success');
       setTimeout(() => setSaveStatus(null), 3000);
     } catch (err) {
@@ -33,16 +146,6 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleDownloadJson = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(formData, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `content_backup_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
   };
 
   // Helper functions for adding items
@@ -155,21 +258,20 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
     { id: 'hero_intro', label: 'Hero, Intro & Scope' },
     { id: 'speakers', label: 'Keynote Speakers' },
     { id: 'news', label: 'Latest News' },
-    { id: 'prev_events', label: 'Previous Events' },
-    { id: 'sponsors', label: 'Sponsors (Image Only)' },
+    { id: 'prev_events', label: 'Other Events' },
+    { id: 'sponsors', label: 'Sponsors' },
     { id: 'tracks', label: 'Conference Tracks' },
     { id: 'dates', label: 'Important Dates' },
     { id: 'registration', label: 'Registration & Fees' },
     { id: 'gallery', label: 'Gallery Photos' },
-    { id: 'html_tester', label: 'HTML Validator & Sandbox' },
   ];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white max-w-5xl w-full max-h-[92vh] flex flex-col border border-slate-300 shadow-2xl">
+      <div className="bg-white max-w-5xl w-full h-[90vh] max-h-[92vh] flex flex-col border border-slate-300 shadow-2xl overflow-hidden">
         
         {/* Modal Header (Sharp, academic deep navy) */}
-        <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between bg-[#0A2540] text-white">
+        <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between bg-[#0A2540] text-white shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-brand-green text-white">
               <FileText className="w-5 h-5" />
@@ -179,7 +281,7 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                 In-Website Content & Section Editor
               </h2>
               <p className="text-xs text-slate-300">
-                Live modification of conference content with XSS validation & backend persistence
+                Live modification of conference content with instant cloud synchronization
               </p>
             </div>
           </div>
@@ -192,16 +294,19 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
           </button>
         </div>
 
-        {/* Section Navigation Tabs (No rounded boxes, clean horizontal bar) */}
-        <div className="flex border-b border-slate-200 bg-slate-100 px-4 gap-1 overflow-x-auto text-xs font-bold uppercase tracking-wider">
+        {/* Section Navigation Tabs (Hidden scrollbar with mousewheel horizontal scroll) */}
+        <div 
+          ref={tabsContainerRef}
+          className="flex border-b border-slate-200 bg-slate-100 px-4 gap-1 overflow-x-auto text-xs font-bold uppercase tracking-wider shrink-0 select-none no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-3 transition-colors whitespace-nowrap cursor-pointer border-b-2 ${
+              className={`py-3 px-3 transition-colors whitespace-nowrap cursor-pointer border-b-2 shrink-0 ${
                 activeTab === tab.id
-                  ? 'border-brand-navy text-brand-navy bg-white'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-brand-navy text-brand-navy bg-white font-black'
+                  : 'border-transparent text-slate-600 hover:text-slate-900 font-semibold'
               }`}
             >
               {tab.label}
@@ -209,39 +314,159 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
           ))}
         </div>
 
-        {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 text-xs">
+        {/* Modal Body (Scrolls internally without squishing header, tabs, or footer) */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 sm:p-8 space-y-6 bg-white text-xs">
           
           {/* 1. Hero, Intro & Scope */}
           {activeTab === 'hero_intro' && (
-            <div className="space-y-5 bg-white p-6 border border-slate-300">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-brand-navy border-b border-slate-200 pb-2">
-                Hero Section & Welcome/Scope Texts
-              </h3>
+            <div className="space-y-8">
+              
+              {/* Hero Banner Details */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-brand-navy">
+                  Hero Section (Main Banner)
+                </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Edition Line
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 3rd International Conference on"
+                      value={formData.hero?.edition_label ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hero: { ...formData.hero, edition_label: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Acronym / Subtitle
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. (RAMSITA - 2028)"
+                      value={formData.hero?.short_name ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hero: { ...formData.hero, short_name: e.target.value },
+                          meta: { ...formData.meta, shortName: e.target.value.replace(/[()]/g, '').trim() }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy font-bold text-brand-green"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                    Conference Dates
+                    Full Conference Title
                   </label>
-                  <input
-                    type="text"
-                    value={formData.meta?.dates || ''}
+                  <textarea
+                    rows={2}
+                    placeholder="Recent Advancement and Modernization in Sustainable Intelligent Technologies & Applications"
+                    value={formData.hero?.title ?? ''}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        meta: { ...formData.meta, dates: e.target.value }
+                        hero: { ...formData.hero, title: e.target.value },
+                        meta: { ...formData.meta, conferenceTitle: e.target.value }
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
+                    className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy font-semibold resize-none"
                   />
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Presentation Mode
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Organized in Hybrid Mode"
+                      value={formData.hero?.mode ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hero: { ...formData.hero, mode: e.target.value },
+                          meta: { ...formData.meta, mode: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Conference Dates
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. February 11–12, 2028"
+                      value={formData.hero?.dates || formData.meta?.dates || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hero: { ...formData.hero, dates: e.target.value },
+                          meta: { ...formData.meta, dates: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Organizing Institute
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Acropolis Institute of Technology and Research"
+                      value={formData.hero?.organizer_name ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hero: { ...formData.hero, organizer_name: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Organizer Location
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. , Indore, MP, India"
+                      value={formData.hero?.organizer_location ?? ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hero: { ...formData.hero, organizer_location: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                    Microsoft CMT Link
+                    Microsoft CMT Submission Portal Link
                   </label>
                   <input
                     type="text"
+                    placeholder="https://cmt3.research.microsoft.com"
                     value={formData.hero?.cmtLink || ''}
                     onChange={(e) =>
                       setFormData({
@@ -249,95 +474,88 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                         hero: { ...formData.hero, cmtLink: e.target.value }
                       })
                     }
-                    className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
+                    className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy font-mono text-xs"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                  Intro Heading
-                </label>
-                <input
-                  type="text"
-                  value={formData.intro_scope?.intro_heading || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      intro_scope: { ...formData.intro_scope, intro_heading: e.target.value }
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
-                />
+              {/* Intro & Scope Callouts */}
+              <div className="space-y-4 pt-2">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-brand-navy">
+                  Welcome & Scope Callouts
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Intro Box Heading
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.intro_scope?.intro_heading || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          intro_scope: { ...formData.intro_scope, intro_heading: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Scope Box Heading
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.intro_scope?.scope_heading || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          intro_scope: { ...formData.intro_scope, scope_heading: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy font-semibold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Intro Description
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.intro_scope?.intro_text || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          intro_scope: { ...formData.intro_scope, intro_text: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
+                      Scope Description
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.intro_scope?.scope_text || ''}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          intro_scope: { ...formData.intro_scope, scope_text: e.target.value }
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy resize-none"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                  Intro Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={formData.intro_scope?.intro_text || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      intro_scope: { ...formData.intro_scope, intro_text: e.target.value }
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                  Scope Heading
-                </label>
-                <input
-                  type="text"
-                  value={formData.intro_scope?.scope_heading || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      intro_scope: { ...formData.intro_scope, scope_heading: e.target.value }
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                  Scope Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={formData.intro_scope?.scope_text || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      intro_scope: { ...formData.intro_scope, scope_text: e.target.value }
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-slate-300 focus:outline-none focus:border-brand-navy resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-700 mb-1">
-                  Marquee Announcements (One per line)
-                </label>
-                <textarea
-                  rows={4}
-                  value={(formData.marquee || []).join('\n')}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      marquee: e.target.value.split('\n').filter(Boolean),
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-slate-300 font-mono text-xs focus:outline-none focus:border-brand-navy"
-                />
-              </div>
             </div>
           )}
 
@@ -429,19 +647,16 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Avatar Image URL</label>
-                      <input
-                        type="text"
-                        value={sp.avatar}
-                        onChange={(e) => {
-                          const updated = [...formData.speakers];
-                          updated[idx].avatar = e.target.value;
-                          setFormData({ ...formData, speakers: updated });
-                        }}
-                        className="w-full px-2.5 py-1.5 border border-slate-300 font-mono text-[11px]"
-                      />
-                    </div>
+                    <ImageUploadInput
+                      label="Avatar Image URL"
+                      value={sp.avatar}
+                      onChange={(newUrl) => {
+                        const updated = [...formData.speakers];
+                        updated[idx].avatar = newUrl;
+                        setFormData({ ...formData, speakers: updated });
+                      }}
+                      placeholder="https://... or upload photo"
+                    />
                   </div>
                 ))}
               </div>
@@ -535,19 +750,17 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Optional Image URL</label>
-                        <input
-                          type="text"
+                        <ImageUploadInput
+                          label="Optional Image URL"
                           value={news.image || ''}
-                          onChange={(e) => {
+                          onChange={(newUrl) => {
                             const updated = [...formData.latest_news];
-                            updated[idx].image = e.target.value;
+                            updated[idx].image = newUrl;
                             setFormData({ ...formData, latest_news: updated });
                           }}
-                          className="w-full px-2.5 py-1.5 border border-slate-300 font-mono text-[11px]"
-                          placeholder="https://..."
+                          placeholder="https://... or upload image"
                         />
                       </div>
                       <div>
@@ -571,19 +784,19 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
             </div>
           )}
 
-          {/* 4. Previous Events */}
+          {/* 4. Other Events */}
           {activeTab === 'prev_events' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-slate-600 font-medium">
-                  Manage past editions (e.g. RAMSITA 2026, MPCON 2027):
+                  Manage other conference events and past editions (auto-slides on Home tab):
                 </p>
                 <button
                   onClick={addPreviousEvent}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-green text-white font-bold uppercase tracking-wider text-[11px] hover:bg-emerald-700 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Add Past Event</span>
+                  <span>Add Other Event</span>
                 </button>
               </div>
 
@@ -673,16 +886,15 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Image URL</label>
-                        <input
-                          type="text"
+                        <ImageUploadInput
+                          label="Image URL"
                           value={ev.image}
-                          onChange={(e) => {
+                          onChange={(newUrl) => {
                             const updated = [...formData.previous_events];
-                            updated[idx].image = e.target.value;
+                            updated[idx].image = newUrl;
                             setFormData({ ...formData, previous_events: updated });
                           }}
-                          className="w-full px-2.5 py-1.5 border border-slate-300 font-mono text-[11px]"
+                          placeholder="https://... or upload photo"
                         />
                       </div>
                       <div>
@@ -705,12 +917,12 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
             </div>
           )}
 
-          {/* 5. Sponsors (Image Only) */}
+          {/* 5. Sponsors */}
           {activeTab === 'sponsors' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-slate-600 font-medium">
-                  Manage sponsor/collaborator logos (image-only per user instruction):
+                  Manage sponsor & collaborator logos (continuous sliding marquee on Home tab):
                 </p>
                 <button
                   onClick={addSponsorLogo}
@@ -755,17 +967,16 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                           className="w-full px-2 py-1 border border-slate-300"
                         />
                       </div>
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Logo Image URL</label>
-                        <input
-                          type="text"
+                      <div className="sm:col-span-1">
+                        <ImageUploadInput
+                          label="Logo Image URL"
                           value={sp.logo}
-                          onChange={(e) => {
+                          onChange={(newUrl) => {
                             const updated = [...formData.sponsor_logos];
-                            updated[idx].logo = e.target.value;
+                            updated[idx].logo = newUrl;
                             setFormData({ ...formData, sponsor_logos: updated });
                           }}
-                          className="w-full px-2 py-1 border border-slate-300 font-mono text-[11px]"
+                          placeholder="https://... or upload logo"
                         />
                       </div>
                     </div>
@@ -870,7 +1081,7 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
           {/* 8. Registration & Fees */}
           {activeTab === 'registration' && (
             <div className="space-y-4">
-              <div className="bg-white p-4 border border-slate-300 space-y-2">
+              <div className="space-y-2">
                 <label className="block text-[11px] font-bold uppercase text-brand-navy">
                   Top Bulleted Notes (One per line)
                 </label>
@@ -994,19 +1205,16 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Image URL</label>
-                      <input
-                        type="text"
-                        value={photo.image}
-                        onChange={(e) => {
-                          const updated = [...formData.gallery];
-                          updated[idx].image = e.target.value;
-                          setFormData({ ...formData, gallery: updated });
-                        }}
-                        className="w-full px-2.5 py-1.5 border border-slate-300 font-mono text-[11px]"
-                      />
-                    </div>
+                    <ImageUploadInput
+                      label="Photo Image URL"
+                      value={photo.image}
+                      onChange={(newUrl) => {
+                        const updated = [...formData.gallery];
+                        updated[idx].image = newUrl;
+                        setFormData({ ...formData, gallery: updated });
+                      }}
+                      placeholder="https://... or upload photo"
+                    />
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Caption</label>
@@ -1027,96 +1235,24 @@ export default function ContentEditorModal({ isOpen, onClose, content, onSave })
             </div>
           )}
 
-          {/* 10. Safe HTML Validator & Sandbox */}
-          {activeTab === 'html_tester' && (
-            <div className="space-y-4 bg-white p-6 border border-slate-300">
-              <div className="p-3 bg-blue-50 border border-blue-200 text-xs text-blue-900 leading-relaxed">
-                <strong>Real-Time Security Sanitizer:</strong> Inserted HTML is continuously scanned. Harmful tags like <code>&lt;script&gt;</code>, <code>onerror</code>, <code>&lt;iframe&gt;</code>, and <code>javascript:</code> are blocked and neutralized to prevent XSS attacks.
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold uppercase text-slate-700 flex items-center gap-1.5">
-                    <Code className="w-4 h-4 text-brand-navy" />
-                    <span>Raw HTML / Rich Text Snippet</span>
-                  </label>
-                  {isMalicious ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5">
-                      <ShieldAlert className="w-3.5 h-3.5" />
-                      Dangerous Script Blocked
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      Clean & Safe HTML
-                    </span>
-                  )}
-                </div>
-                <textarea
-                  rows={4}
-                  value={rawHtmlSnippet}
-                  onChange={(e) => setRawHtmlSnippet(e.target.value)}
-                  className="w-full font-mono text-xs p-3 border border-slate-300 focus:outline-none focus:border-brand-navy"
-                  placeholder="Enter HTML snippet (e.g. <p>Announcement</p>)"
-                />
-              </div>
-
-              {/* Live Preview Box */}
-              <div>
-                <label className="text-xs font-bold uppercase text-slate-700 mb-1.5 flex items-center gap-1.5">
-                  <Eye className="w-4 h-4 text-brand-green" />
-                  <span>Sanitized Live Render Preview</span>
-                </label>
-                <div 
-                  className="p-4 bg-slate-50 border border-slate-300 text-sm"
-                  dangerouslySetInnerHTML={{
-                    __html: isMalicious
-                      ? rawHtmlSnippet.replace(maliciousPattern, '<b class="text-red-500">[BLOCKED SCRIPT]</b>')
-                      : rawHtmlSnippet
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
         </div>
 
-        {/* Modal Footer (Sharp buttons + Passkey + Download) */}
-        <div className="px-6 py-4 border-t border-slate-300 bg-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <label className="text-[11px] font-bold uppercase text-slate-600 whitespace-nowrap">
-                Passkey:
-              </label>
-              <input
-                type="password"
-                placeholder="Optional Admin Key"
-                value={adminPasskey}
-                onChange={(e) => setAdminPasskey(e.target.value)}
-                className="px-2.5 py-1 text-xs border border-slate-300 bg-white w-36 focus:outline-none focus:border-brand-navy"
-                title="If your server is protected with an ADMIN_KEY, enter it here"
-              />
-            </div>
+        {/* Modal Footer */}
+        <div className="px-6 py-4 border-t border-slate-300 bg-slate-100 flex items-center justify-between gap-3 shrink-0">
+          <div>
             {saveStatus === 'success' && (
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Published & saved!
+                Published & saved successfully!
               </span>
             )}
             {saveStatus === 'error' && (
               <span className="text-xs font-bold text-red-600">
-                Save failed or passkey invalid.
+                Save failed. Please check your Supabase connection.
               </span>
             )}
           </div>
-          <div className="w-full sm:w-auto flex items-center justify-end gap-2">
-            <button
-              onClick={handleDownloadJson}
-              className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer"
-              title="Export conference backup directly as JSON"
-            >
-              Export JSON
-            </button>
+          <div className="flex items-center justify-end gap-2.5">
             <button
               onClick={onClose}
               className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer"

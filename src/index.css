@@ -3,11 +3,11 @@
 @theme {
   --color-brand-navy: #0A2540;
   --color-brand-dark: #0E2B5C;
-  --color-brand-blue: #0D6BA1;
-  --color-brand-cyan: #1B88CA;
-  --color-brand-green: #48A23F;
-  --color-brand-emerald: #5CB85C;
-  --color-brand-mint: #F0FDF4;
+  --color-brand-blue: #0C5B94;
+  --color-brand-cyan: #1472B8;
+  --color-brand-green: #77B232;
+  --color-brand-emerald: #6BA02D;
+  --color-brand-mint: #F4F9EC;
   --color-brand-surface: #F8FAFC;
   --color-brand-orange: #FF6600;
   --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -15,19 +15,16 @@
   --font-serif: 'Roboto Slab', Georgia, serif;
 }
 
-@keyframes marquee {
+@keyframes marqueeScroll {
   0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-100%); }
 }
 
-.animate-marquee {
+.animate-marquee-track {
   display: flex;
-  width: 200%;
-  animation: marquee 35s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
+  flex-shrink: 0;
+  animation: marqueeScroll 26s linear infinite;
+  will-change: transform;
 }
 
 @keyframes fadeInSpeaker {
@@ -61,6 +58,15 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Hide scrollbar while preserving smooth scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* ========================================================
