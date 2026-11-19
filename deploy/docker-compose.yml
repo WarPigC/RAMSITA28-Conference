@@ -1,0 +1,13 @@
+services:
+  web:
+    image: ghcr.io/OWNER/REPO:${TAG:-latest}
+    container_name: conference-ramsita
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/api/health || exit 1"]
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
