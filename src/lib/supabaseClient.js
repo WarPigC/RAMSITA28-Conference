@@ -12,23 +12,71 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
 
 export const isSupabaseConfigured = Boolean(supabase);
 
+const CACHE_KEY = 'ramsita_content_cache_v2';
+
 /**
- * Fetch conference content directly and exclusively from Supabase PostgreSQL tables
+ * Retrieve cached conference data synchronously from browser localStorage
+ * Enables instant 0ms visual paint with stale-while-revalidate pattern.
+ */
+export function getCachedConferenceContent() {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    return cached ? JSON.parse(cached) : null;
+  } catch (e) {
+    console.warn('Failed to read content cache:', e);
+    return null;
+  }
+}
+
+/**
+ * Fetch conference content directly from Supabase using parallel requests (Promise.all)
+ * Updates the local cache upon successful fetch.
  */
 export async function fetchConferenceContent() {
   if (!supabase) {
     throw new Error('Supabase client is not configured. Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in .env');
   }
 
-  // 1. Fetch site settings
-  const { data: settingsData, error: sErr } = await supabase
-    .from('site_settings')
-    .select('key, value');
+  // Execute all 10 table queries in parallel
+  const [
+    settingsRes,
+    speakersRes,
+    datesRes,
+    tracksRes,
+    newsRes,
+    eventsRes,
+    sponsorsRes,
+    feesRes,
+    membersRes,
+    galleryRes
+  ] = await Promise.all([
+    supabase.from('site_settings').select('key, value'),
+    supabase.from('keynote_speakers').select('id, name, title, institution, topic, avatar').order('display_order', { ascending: true }),
+    supabase.from('important_dates').select('id, event, date, status, highlight').order('display_order', { ascending: true }),
+    supabase.from('tracks').select('id, number, name, scope, color').order('display_order', { ascending: true }),
+    supabase.from('latest_news').select('id, date, category, title, text, image, link').order('display_order', { ascending: true }),
+    supabase.from('previous_events').select('id, year, title, subtitle, desc, image, link, stats').order('display_order', { ascending: true }),
+    supabase.from('sponsor_logos').select('id, name, logo, tier').order('display_order', { ascending: true }),
+    supabase.from('registration_fees').select('id, category, inr, usd, perks').order('display_order', { ascending: true }),
+    supabase.from('committee_members').select('id, category, name, role, affiliation').order('display_order', { ascending: true }),
+    supabase.from('gallery_photos').select('id, title, category, image, caption').order('display_order', { ascending: true })
+  ]);
 
-  if (sErr) throw sErr;
+  // Check for any errors
+  if (settingsRes.error) throw settingsRes.error;
+  if (speakersRes.error) throw speakersRes.error;
+  if (datesRes.error) throw datesRes.error;
+  if (tracksRes.error) throw tracksRes.error;
+  if (newsRes.error) throw newsRes.error;
+  if (eventsRes.error) throw eventsRes.error;
+  if (sponsorsRes.error) throw sponsorsRes.error;
+  if (feesRes.error) throw feesRes.error;
+  if (membersRes.error) throw membersRes.error;
+  if (galleryRes.error) throw galleryRes.error;
 
+  // 1. Process site settings
   const settings = {};
-  (settingsData || []).forEach((row) => {
+  (settingsRes.data || []).forEach((row) => {
     try {
       settings[row.key] = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
     } catch {
@@ -36,75 +84,13 @@ export async function fetchConferenceContent() {
     }
   });
 
-  // 2. Fetch Keynote Speakers
-  const { data: speakers, error: spErr } = await supabase
-    .from('keynote_speakers')
-    .select('id, name, title, institution, topic, avatar')
-    .order('display_order', { ascending: true });
-
-  if (spErr) throw spErr;
-
-  // 3. Fetch Important Dates
-  const { data: important_dates, error: dErr } = await supabase
-    .from('important_dates')
-    .select('id, event, date, status, highlight')
-    .order('display_order', { ascending: true });
-
-  if (dErr) throw dErr;
-
-  // 4. Fetch Tracks
-  const { data: tracks, error: tErr } = await supabase
-    .from('tracks')
-    .select('id, number, name, scope, color')
-    .order('display_order', { ascending: true });
-
-  if (tErr) throw tErr;
-
-  // 5. Fetch Latest News
-  const { data: latest_news, error: nErr } = await supabase
-    .from('latest_news')
-    .select('id, date, category, title, text, image, link')
-    .order('display_order', { ascending: true });
-
-  if (nErr) throw nErr;
-
-  // 6. Fetch Previous Events
-  const { data: previous_events, error: peErr } = await supabase
-    .from('previous_events')
-    .select('id, year, title, subtitle, desc, image, link, stats')
-    .order('display_order', { ascending: true });
-
-  if (peErr) throw peErr;
-
-  // 7. Fetch Sponsor Logos
-  const { data: sponsor_logos, error: slErr } = await supabase
-    .from('sponsor_logos')
-    .select('id, name, logo, tier')
-    .order('display_order', { ascending: true });
-
-  if (slErr) throw slErr;
-
-  // 8. Fetch Registration Fees
-  const { data: feesData, error: fErr } = await supabase
-    .from('registration_fees')
-    .select('id, category, inr, usd, perks')
-    .order('display_order', { ascending: true });
-
-  if (fErr) throw fErr;
-
-  const fees = (feesData || []).map((f) => ({
+  // 2. Process Registration Fees
+  const fees = (feesRes.data || []).map((f) => ({
     ...f,
     perks: typeof f.perks === 'string' ? JSON.parse(f.perks) : (f.perks || [])
   }));
 
-  // 9. Fetch Committee Members
-  const { data: members, error: mErr } = await supabase
-    .from('committee_members')
-    .select('id, category, name, role, affiliation')
-    .order('display_order', { ascending: true });
-
-  if (mErr) throw mErr;
-
+  // 3. Process Committees
   const committees = {
     chiefPatron: [],
     patrons: [],
@@ -113,7 +99,7 @@ export async function fetchConferenceContent() {
     advisoryInternational: [],
     advisoryNational: []
   };
-  (members || []).forEach((m) => {
+  (membersRes.data || []).forEach((m) => {
     if (committees[m.category]) {
       committees[m.category].push({
         name: m.name,
@@ -123,27 +109,19 @@ export async function fetchConferenceContent() {
     }
   });
 
-  // 10. Fetch Gallery Photos
-  const { data: gallery, error: gErr } = await supabase
-    .from('gallery_photos')
-    .select('id, title, category, image, caption')
-    .order('display_order', { ascending: true });
-
-  if (gErr) throw gErr;
-
-  return {
+  const contentResult = {
     meta: settings.meta || {},
     marquee: settings.marquee || [],
     hero: settings.hero || {},
     usps: settings.usps || [],
     intro_scope: settings.intro_scope || {},
     call_for_papers: settings.call_for_papers || {},
-    tracks: tracks || [],
-    important_dates: (important_dates || []).map(d => ({ ...d, highlight: Boolean(d.highlight) })),
-    speakers: speakers || [],
-    latest_news: latest_news || [],
-    previous_events: previous_events || [],
-    sponsor_logos: sponsor_logos || [],
+    tracks: tracksRes.data || [],
+    important_dates: (datesRes.data || []).map(d => ({ ...d, highlight: Boolean(d.highlight) })),
+    speakers: speakersRes.data || [],
+    latest_news: newsRes.data || [],
+    previous_events: eventsRes.data || [],
+    sponsor_logos: sponsorsRes.data || [],
     registration: {
       guidelines: settings.registration_guidelines || '',
       notes: settings.registration_notes || [],
@@ -153,9 +131,18 @@ export async function fetchConferenceContent() {
     committees,
     about: settings.about || {},
     sponsors: settings.sponsors || {},
-    gallery: gallery || [],
+    gallery: galleryRes.data || [],
     contact: settings.contact || {}
   };
+
+  // Cache latest data in localStorage for 0ms loads on subsequent visits
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(contentResult));
+  } catch (e) {
+    console.warn('Failed to write content to cache:', e);
+  }
+
+  return contentResult;
 }
 
 /**
@@ -315,6 +302,13 @@ export async function saveConferenceContent(data) {
     if (galleryRows.length > 0) {
       await supabase.from('gallery_photos').insert(galleryRows);
     }
+  }
+
+  // Update local cache with saved content
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Failed to update cache on save:', e);
   }
 
   return { success: true, data };

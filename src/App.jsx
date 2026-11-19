@@ -15,35 +15,54 @@ import SponsorsTab from './components/tabs/SponsorsTab.jsx';
 import GalleryTab from './components/tabs/GalleryTab.jsx';
 import ContactUsTab from './components/tabs/ContactUsTab.jsx';
 
-// Supabase Client and data sync exclusively
-import { fetchConferenceContent, saveConferenceContent, isSupabaseConfigured } from './lib/supabaseClient.js';
+// Supabase Client with SWR (Stale-While-Revalidate) Instant Cache
+import { 
+  fetchConferenceContent, 
+  saveConferenceContent, 
+  getCachedConferenceContent, 
+  isSupabaseConfigured 
+} from './lib/supabaseClient.js';
+import { initialContent } from './data/initialContent.js';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
-  const [content, setContent] = useState(null);
+  // 1. Instant 0ms Paint: Seed data bundled statically + synced with localStorage cache
+  const [content, setContent] = useState(() => getCachedConferenceContent() || initialContent);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch content exclusively from Supabase on mount
+  // 2. Background Revalidation: Silently fetch fresh data from Supabase in the background
   useEffect(() => {
-    async function loadContent() {
-      setLoading(true);
-      setError(null);
+    let isMounted = true;
+
+    async function syncData() {
       try {
-        const data = await fetchConferenceContent();
-        setContent(data);
+        const freshData = await fetchConferenceContent();
+        if (isMounted && freshData) {
+          setContent(freshData);
+          setError(null);
+        }
       } catch (err) {
-        console.error('Error loading conference content from Supabase:', err);
-        setError(err.message || 'Failed to connect to Supabase.');
+        console.warn('Background Supabase sync notice:', err);
+        if (isMounted && !content) {
+          setError(err.message || 'Failed to connect to Supabase.');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
-    loadContent();
+
+    syncData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Save changes from Content Editor Modal directly to Supabase
+  // Save changes from Content Editor Modal directly to Supabase and cache
   const handleSaveContent = async (updatedData) => {
     try {
       const result = await saveConferenceContent(updatedData);
@@ -81,8 +100,8 @@ export default function App() {
     }
   };
 
-  // Loading Screen
-  if (loading) {
+  // Only shown on cold start when cache is empty
+  if (loading && !content) {
     return (
       <div className="min-h-screen bg-[#0A2540] flex flex-col items-center justify-center text-white space-y-4 font-sans">
         <div className="w-12 h-12 border-4 border-emerald-400 border-t-transparent animate-spin"></div>
@@ -94,8 +113,8 @@ export default function App() {
     );
   }
 
-  // Error Screen
-  if (error || !content) {
+  // Error screen only if both cache and Supabase are unavailable
+  if (error && !content) {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 text-slate-800 space-y-4 font-sans">
         <div className="bg-white p-8 max-w-md w-full border border-slate-300 shadow-md space-y-4 text-center">
