@@ -35,22 +35,21 @@ export default function CountdownTimer({ targetDate = '2028-02-11T09:00:00' }) {
   ];
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl p-5 shadow-lg border border-slate-200/80 max-w-xl mx-auto">
-      <div className="flex items-center justify-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-brand-navy">
-        <Clock className="w-4 h-4 text-brand-green animate-spin-slow" />
-        <span>Conference Countdown (Feb 11, 2028)</span>
+    <div className="bg-[#0A2540]/90 text-white p-5 border border-white/20 max-w-xl mx-auto shadow-md">
+      <div className="flex items-center justify-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-emerald-400">
+        <Clock className="w-4 h-4 text-emerald-400" />
+        <span>Conference Countdown — February 11, 2028</span>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+      <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center">
         {units.map((unit, idx) => (
           <div key={idx} className="flex flex-col items-center">
-            <div className="w-full bg-slate-900 text-white rounded-xl py-3 px-1 shadow-inner relative overflow-hidden group">
+            <div className="w-full bg-slate-900/90 text-white py-3 px-1 border border-slate-700">
               <span className="text-2xl sm:text-3xl font-black tracking-tight font-heading text-emerald-400">
                 {String(unit.value).padStart(2, '0')}
               </span>
-              <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent pointer-events-none"></div>
             </div>
-            <span className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-1 uppercase">
+            <span className="text-[11px] font-semibold text-slate-300 mt-1 uppercase tracking-wider">
               {unit.label}
             </span>
           </div>

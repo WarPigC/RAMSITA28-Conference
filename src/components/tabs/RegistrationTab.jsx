@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Check, Copy, ExternalLink, QrCode, Building, CreditCard, AlertCircle } from 'lucide-react';
+import { Check, Copy, ExternalLink, QrCode, Building, CreditCard, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function RegistrationTab({ content }) {
-  const { registration } = content;
-  const [currency, setCurrency] = useState('inr'); // 'inr' or 'usd'
+  const { registration = {}, hero = {} } = content;
+  const [currency, setCurrency] = useState('inr');
   const [copiedField, setCopiedField] = useState(null);
 
   const copyToClipboard = (text, fieldName) => {
@@ -12,100 +12,139 @@ export default function RegistrationTab({ content }) {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
-      
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-4">
-        <span className="text-xs font-extrabold uppercase tracking-wider text-brand-green bg-brand-mint px-3 py-1 rounded-full border border-emerald-200">
-          Author & Delegate Passes
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-black font-heading text-brand-navy">
-          Conference Registration & Fees
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-600">
-          All registration packages include paper presentation, Springer Nature publication eligibility, certificates, and access to all keynote sessions.
-        </p>
+  const defaultNotes = [
+    'Registration fee covers publication in Atlantis Press (Springer Nature) AISR series (ISSN: 1951-6851).',
+    'Up to 6 pages allowed per paper under standard fee. Extra pages charged at ₹1,000 (INR) or $25 (USD) per page (maximum 2 extra pages).',
+    'At least one author of each accepted paper must register with a Full Author Registration fee and present the paper during the conference.',
+    'Hybrid Mode available: Authors may present in-person at AITR Indore campus or virtually via video conference.',
+    'Registration includes presentation certificate, delegate conference kit, proceedings download, and conference banquet for physical attendees.'
+  ];
 
-        {/* Currency Switcher */}
-        <div className="inline-flex items-center p-1 bg-slate-200 rounded-xl text-xs font-bold">
+  const bulletNotes = registration?.notes || defaultNotes;
+
+  // Distinct color palettes per card tier: no border, no curved boxes
+  const tierColors = [
+    { bg: 'bg-[#0A2540]', text: 'text-white', badge: 'bg-emerald-500 text-white', accent: 'text-emerald-300' }, // Academic Author
+    { bg: 'bg-[#065F46]', text: 'text-white', badge: 'bg-amber-400 text-slate-900', accent: 'text-amber-300' }, // Industry
+    { bg: 'bg-[#1E40AF]', text: 'text-white', badge: 'bg-cyan-400 text-slate-900', accent: 'text-cyan-300' },    // Attendee / Foreign
+    { bg: 'bg-[#1E293B]', text: 'text-white', badge: 'bg-purple-400 text-slate-900', accent: 'text-purple-300' } // Poster / Special
+  ];
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 bg-white">
+      
+      {/* Header Banner */}
+      <div className="bg-[#0A2540] text-white p-8 sm:p-10 border-b-4 border-brand-green shadow-xs">
+        <div className="max-w-3xl space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block">
+            Author & Delegate Registration
+          </span>
+          <h1 className="text-2xl sm:text-4xl font-black font-heading tracking-tight">
+            Conference Registration & Fees
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            All accepted and presented papers fulfilling Springer Nature standards will be published in the Atlantis Press AISR series. Select your registration category below.
+          </p>
+        </div>
+      </div>
+
+      {/* 1. CRITICAL NOTES PLACED AT THE TOP IN BULLET POINTS (User requirement) */}
+      <div className="bg-amber-50/80 border-l-4 border-[#FF6600] p-6 sm:p-8 space-y-3">
+        <div className="flex items-center gap-2 text-brand-navy">
+          <AlertCircle className="w-5 h-5 text-[#FF6600] shrink-0" />
+          <h3 className="text-base font-bold font-heading uppercase tracking-wide">
+            Important Author Registration Guidelines & Policy Notes
+          </h3>
+        </div>
+        <ul className="space-y-2 text-xs sm:text-sm text-slate-800 leading-relaxed">
+          {bulletNotes.map((note, idx) => (
+            <li key={idx} className="flex items-start gap-2.5">
+              <span className="text-[#FF6600] font-black text-base leading-none">•</span>
+              <span>{note}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Currency Toggle */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+            Select Currency View
+          </span>
+          <h3 className="text-lg font-bold text-brand-navy">
+            Registration Fee Categories
+          </h3>
+        </div>
+        <div className="inline-flex border border-slate-300 bg-slate-100 p-0.5">
           <button
             onClick={() => setCurrency('inr')}
-            className={`px-4 py-1.5 rounded-lg transition-all ${
+            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               currency === 'inr'
-                ? 'bg-brand-navy text-white shadow-xs'
+                ? 'bg-brand-navy text-white'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Indian Delegates (INR ₹)
+            Indian Authors (₹ INR)
           </button>
           <button
             onClick={() => setCurrency('usd')}
-            className={`px-4 py-1.5 rounded-lg transition-all ${
+            className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               currency === 'usd'
-                ? 'bg-brand-navy text-white shadow-xs'
+                ? 'bg-brand-navy text-white'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Foreign Delegates (USD $)
+            Foreign Authors ($ USD)
           </button>
         </div>
       </div>
 
-      {/* Pricing Cards Grid */}
+      {/* 2. CARDS WITH NO BORDER, NO CURVED BOXES, CLEAR COLOURS & PRICES (User requirement) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {registration.fees.map((tier, idx) => {
-          const isFeatured = idx === 0;
+        {(registration?.fees || []).map((tier, idx) => {
+          const colorTheme = tierColors[idx % tierColors.length];
           return (
             <div
               key={idx}
-              className={`rounded-2xl p-6 flex flex-col justify-between transition-all ${
-                isFeatured
-                  ? 'bg-gradient-to-b from-brand-navy to-brand-blue text-white shadow-xl ring-2 ring-emerald-400'
-                  : 'bg-white border border-slate-200 text-slate-800 shadow-xs hover:shadow-md'
-              }`}
+              className={`${colorTheme.bg} ${colorTheme.text} border-0 rounded-none p-6 sm:p-7 flex flex-col justify-between shadow-md space-y-6`}
             >
               <div className="space-y-4">
-                {isFeatured && (
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-brand-green text-white px-2.5 py-0.5 rounded-full inline-block">
-                    Most Popular
-                  </span>
-                )}
-                <h3 className={`text-base font-bold leading-snug ${isFeatured ? 'text-white' : 'text-brand-navy'}`}>
+                <span className={`inline-block px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-none ${colorTheme.badge}`}>
+                  Category 0{idx + 1}
+                </span>
+
+                <h3 className="text-lg font-bold leading-snug min-h-[50px]">
                   {tier.category}
                 </h3>
 
-                <div className="pt-2 border-t border-slate-100/20">
-                  <span className="text-3xl font-black font-heading">
+                <div className="pt-3 border-t border-white/20">
+                  <div className="text-3xl sm:text-4xl font-black font-heading tracking-tight">
                     {currency === 'inr' ? `₹ ${tier.inr.toLocaleString()}` : `$ ${tier.usd}`}
-                  </span>
-                  <span className={`text-[11px] block ${isFeatured ? 'text-slate-300' : 'text-slate-500'}`}>
-                    Inclusive of 18% GST
+                  </div>
+                  <span className={`text-[11px] block mt-1 uppercase font-semibold ${colorTheme.accent}`}>
+                    {currency === 'inr' ? 'GST included • Per paper' : 'International delegate fee'}
                   </span>
                 </div>
 
-                <ul className="space-y-2 pt-2 text-xs">
+                <ul className="space-y-2 pt-3 border-t border-white/10 text-xs text-slate-200">
                   {tier.perks.map((perk, pIdx) => (
                     <li key={pIdx} className="flex items-start gap-2">
-                      <Check className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isFeatured ? 'text-emerald-400' : 'text-brand-green'}`} />
-                      <span className={isFeatured ? 'text-slate-200' : 'text-slate-600'}>{perk}</span>
+                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{perk}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="pt-6">
+              <div className="pt-4">
                 <a
-                  href="https://forms.gle/ramsita2028"
+                  href={hero.registrationLink || 'https://forms.gle/ramsita2028'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold text-center block transition-all ${
-                    isFeatured
-                      ? 'bg-brand-green text-white hover:brightness-110 shadow-md'
-                      : 'bg-slate-100 hover:bg-brand-mint text-brand-navy hover:text-brand-green border border-slate-200'
-                  }`}
+                  className="block w-full text-center py-3 text-xs font-bold uppercase tracking-wider text-slate-900 bg-white hover:bg-slate-100 transition-all shadow-sm rounded-none"
                 >
-                  Register in this Category
+                  Register Now
                 </a>
               </div>
             </div>
@@ -113,114 +152,96 @@ export default function RegistrationTab({ content }) {
         })}
       </div>
 
-      {/* Payment Information & Bank Account Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Bank Wire Details */}
-        <div className="lg:col-span-8 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
-          <div className="flex items-center gap-2">
-            <Building className="w-5 h-5 text-brand-blue" />
-            <h3 className="text-lg font-bold font-heading text-brand-navy">
-              Direct Bank Transfer / NEFT / IMPS / Wire
-            </h3>
-          </div>
+      {/* 3. Bank Account & Wire Details */}
+      <div className="border border-slate-300 bg-slate-50 p-6 sm:p-8 space-y-6">
+        <div className="border-b border-slate-200 pb-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-green block">
+            Payment Methods
+          </span>
+          <h3 className="text-xl font-bold font-heading text-brand-navy">
+            Bank Account Transfer & Domestic UPI Details
+          </h3>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          
+          {/* Bank Wire Details */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Direct NEFT / RTGS / IMPS Transfer
+            </h4>
             
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Account Name</span>
-                <span className="font-bold text-slate-800">{registration.bank.accountName}</span>
+            <div className="bg-white border border-slate-200 divide-y divide-slate-200 text-xs">
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Beneficiary Name</span>
+                <span className="font-bold text-brand-navy">{registration?.bank?.accountName || 'Acropolis Institute of Technology & Research'}</span>
               </div>
-              <button 
-                onClick={() => copyToClipboard(registration.bank.accountName, 'accName')}
-                className="p-1 text-slate-400 hover:text-brand-blue"
-              >
-                {copiedField === 'accName' ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-              </button>
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Bank Name & Branch</span>
+                <span className="font-bold text-brand-navy">{registration?.bank?.bankName || 'HDFC Bank'}, {registration?.bank?.branch || 'Indore'}</span>
+              </div>
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Account Number</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-brand-blue">{registration?.bank?.accountNumber || '50200052357130'}</span>
+                  <button
+                    onClick={() => copyToClipboard(registration?.bank?.accountNumber || '50200052357130', 'acc')}
+                    className="p-1 text-slate-400 hover:text-brand-navy cursor-pointer"
+                    title="Copy Account Number"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-slate-500 font-medium">IFSC Code</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-brand-navy">{registration?.bank?.ifsc || 'HDFC0000036'}</span>
+                  <button
+                    onClick={() => copyToClipboard(registration?.bank?.ifsc || 'HDFC0000036', 'ifsc')}
+                    className="p-1 text-slate-400 hover:text-brand-navy cursor-pointer"
+                    title="Copy IFSC Code"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Account Number</span>
-                <span className="font-bold text-slate-800 font-mono text-sm">{registration.bank.accountNumber}</span>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(registration.bank.accountNumber, 'accNo')}
-                className="p-1 text-slate-400 hover:text-brand-blue"
-              >
-                {copiedField === 'accNo' ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-              </button>
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">Bank Name & Branch</span>
-                <span className="font-bold text-slate-800">{registration.bank.bankName} ({registration.bank.branch})</span>
-              </div>
-            </div>
-
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">IFSC Code</span>
-                <span className="font-bold text-slate-800 font-mono text-sm">{registration.bank.ifsc}</span>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(registration.bank.ifsc, 'ifsc')}
-                className="p-1 text-slate-400 hover:text-brand-blue"
-              >
-                {copiedField === 'ifsc' ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-              </button>
-            </div>
-
+            {copiedField && (
+              <p className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Copied to clipboard!</span>
+              </p>
+            )}
           </div>
 
-          <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <span>
-              <strong>Crucial Step:</strong> After initiating payment via Net Banking or UPI, please note down the <strong>UTR / Transaction Reference Number</strong> and take a screenshot of the receipt. You will be required to upload it in the conference registration form.
-            </span>
+          {/* UPI ID & Domestic Payment */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Domestic UPI & QR Payment
+            </h4>
+            <div className="bg-white border border-slate-200 p-4 space-y-3 text-xs">
+              <p className="text-slate-600">
+                Authors within India may make registration payments via Google Pay, PhonePe, Paytm, or BHIM using the official institute UPI ID:
+              </p>
+              <div className="flex items-center justify-between p-3 bg-slate-100 font-mono font-bold text-brand-navy border border-slate-300">
+                <span>{registration?.bank?.upiId || 'acropolis@hdfcbank'}</span>
+                <button
+                  onClick={() => copyToClipboard(registration?.bank?.upiId || 'acropolis@hdfcbank', 'upi')}
+                  className="text-brand-blue hover:text-brand-navy font-sans text-xs font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy UPI ID</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500 italic">
+                * Note: Please retain the 12-digit UPI Transaction ID (UTR) or NEFT reference receipt to upload into the Google registration form.
+              </p>
+            </div>
           </div>
+
         </div>
-
-        {/* UPI QR Code Block */}
-        <div className="lg:col-span-4 bg-gradient-to-b from-brand-navy to-slate-900 text-white rounded-2xl p-6 shadow-md text-center space-y-4">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400">
-            <QrCode className="w-4 h-4" />
-            <span>UPI Instant Payment</span>
-          </div>
-
-          <div className="bg-white p-4 rounded-xl inline-block shadow-inner mx-auto">
-            {/* Visual SVG QR representation */}
-            <svg className="w-36 h-36 mx-auto text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="7" height="7"></rect>
-              <rect x="14" y="3" width="7" height="7"></rect>
-              <rect x="14" y="14" width="7" height="7"></rect>
-              <rect x="3" y="14" width="7" height="7"></rect>
-              <circle cx="6.5" cy="6.5" r="1.5" fill="currentColor"></circle>
-              <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"></circle>
-              <circle cx="17.5" cy="17.5" r="1.5" fill="currentColor"></circle>
-              <circle cx="6.5" cy="17.5" r="1.5" fill="currentColor"></circle>
-            </svg>
-          </div>
-
-          <div className="text-xs space-y-1">
-            <span className="text-slate-400 block text-[11px]">UPI VPA ID:</span>
-            <span className="font-mono font-bold text-white bg-white/10 px-3 py-1 rounded-lg inline-block">
-              {registration.bank.upiId}
-            </span>
-          </div>
-
-          <a
-            href="https://forms.gle/ramsita2028"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-2.5 px-4 bg-brand-green hover:brightness-110 text-white font-bold text-xs rounded-xl block shadow transition-all"
-          >
-            Fill Registration Form →
-          </a>
-        </div>
-
       </div>
 
     </div>

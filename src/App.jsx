@@ -41,11 +41,15 @@ export default function App() {
   }, []);
 
   // Save changes from Content Editor Modal
-  const handleSaveContent = async (updatedData) => {
+  const handleSaveContent = async (updatedData, adminKey = '') => {
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (adminKey) {
+        headers['x-admin-key'] = adminKey;
+      }
       const res = await fetch('/api/content', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(updatedData),
       });
 
@@ -54,11 +58,13 @@ export default function App() {
         setContent(result.data);
         return result;
       } else {
-        throw new Error('Save failed on server');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Save failed on server');
       }
     } catch (err) {
       console.warn('Saving to local React state only (backend server may be offline):', err);
       setContent(updatedData);
+      throw err;
     }
   };
 

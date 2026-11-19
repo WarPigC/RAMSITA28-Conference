@@ -10,18 +10,25 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const ADMIN_KEY = process.env.ADMIN_KEY || '';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-const DATA_FILE = path.join(__dirname, 'data', 'content.json');
-const BACKUPS_DIR = path.join(__dirname, 'data', 'backups');
+const DATA_DIR = path.join(__dirname, 'data');
+const DATA_FILE = path.join(DATA_DIR, 'content.json');
+const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
+const DEFAULT_SEED_FILE = path.join(__dirname, 'data', 'content.json');
 
+// Ensure directories exist
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 if (!fs.existsSync(BACKUPS_DIR)) {
   fs.mkdirSync(BACKUPS_DIR, { recursive: true });
 }
 
-// Sanitization helper
+// Sanitization helper to neutralize XSS
 const sanitizeOptions = {
   allowedTags: [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
@@ -41,7 +48,6 @@ const sanitizeOptions = {
 
 function deepSanitize(obj) {
   if (typeof obj === 'string') {
-    // If it looks like HTML, sanitize it; otherwise return trimmed text
     return sanitizeHtml(obj, sanitizeOptions);
   } else if (Array.isArray(obj)) {
     return obj.map(item => deepSanitize(item));
@@ -54,6 +60,16 @@ function deepSanitize(obj) {
   }
   return obj;
 }
+
+// Health check endpoint for Docker / Caddy monitoring
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'RAMSITA 2028 Content API',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
 
 // GET /api/content
 app.get('/api/content', (req, res) => {
@@ -73,7 +89,17 @@ app.get('/api/content', (req, res) => {
 // POST /api/content (Save & Sanitize)
 app.post('/api/content', (req, res) => {
   try {
-    const rawPayload = req.body;
+    // Optional Admin Key Authentication check
+    if (ADMIN_KEY) {
+      const providedKey = req.headers['x-admin-key'] || req.query.adminKey || req.body?.adminKey;
+      if (providedKey !== ADMIN_KEY) {
+        return res.status(401).json({ 
+          error: 'Unauthorized: Invalid Admin Passkey. Please supply the correct passkey in the editor.' 
+        });
+      }
+    }
+
+    const rawPayload = req.body?.data || req.body;
     if (!rawPayload || typeof rawPayload !== 'object') {
       return res.status(400).json({ error: 'Invalid payload' });
     }
@@ -102,7 +128,7 @@ app.post('/api/content', (req, res) => {
   }
 });
 
-// Serve frontend in production
+// Serve frontend in production (if running unified)
 const distDir = path.join(__dirname, 'dist');
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir));
